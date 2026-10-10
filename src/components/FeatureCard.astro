@@ -1,0 +1,36 @@
+---
+import Icon from "./Icon.astro";
+import type { IconName } from "../data/icons";
+
+interface Props {
+  icon: IconName;
+  title: string;
+  description: string;
+  tone?: "raised" | "surface";
+  tile?: "soft" | "brand";
+  class?: string;
+}
+
+const { icon, title, description, tone = "raised", tile = "soft", class: className } = Astro.props;
+---
+
+<article
+  data-reveal
+  class:list={[
+    "flex flex-col gap-2.5 rounded-[28px] p-6",
+    tone === "raised" ? "bg-raised shadow-card" : "bg-surface",
+    className,
+  ]}
+>
+  <span
+    class:list={[
+      "mb-0.5 flex size-10 items-center justify-center rounded-[13px]",
+      tile === "soft" ? "bg-brand-soft text-brand" : "bg-brand text-on-brand dark:text-page",
+    ]}
+  >
+    <Icon name={icon} size={22} />
+  </span>
+  <h3 class="t-h5 text-ink">{title}</h3>
+  <p class="t-body-xs text-muted">{description}</p>
+</article>
+

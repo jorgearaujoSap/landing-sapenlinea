@@ -1,0 +1,32 @@
+---
+import AppCard from "./AppCard.astro";
+import SectionHeader from "./SectionHeader.astro";
+import { apps } from "../data/apps";
+import { getDict, type Locale } from "../i18n";
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const t = getDict(lang);
+const { portfolio } = t;
+---
+
+<section id="soluciones" class="bg-surface py-14 md:bg-transparent md:py-32">
+  <div class="mx-auto flex max-w-[1120px] flex-col gap-10 px-5 md:px-10 xl:px-0">
+    <SectionHeader eyebrow={portfolio.eyebrow} title={portfolio.title} description={portfolio.description}>
+      <img
+        slot="before"
+        src="/assets/brand/ite.webp"
+        alt={t.ui.iteAlt}
+        width="220"
+        height="99"
+        class="mb-1 h-auto w-[180px] rounded-2xl dark:bg-white dark:p-2 md:w-[220px]"
+      />
+    </SectionHeader>
+    <div class="grid gap-4 md:grid-cols-2 md:gap-6" data-stagger>
+      {apps.map((app) => <AppCard app={app} lang={lang} />)}
+    </div>
+  </div>
+</section>

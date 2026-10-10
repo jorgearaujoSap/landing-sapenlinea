@@ -1,0 +1,62 @@
+---
+import Icon from "./Icon.astro";
+import Mockup from "./Mockup.astro";
+import type { App } from "../data/apps";
+import { format, getDict, type Locale } from "../i18n";
+
+interface Props {
+  app: App;
+  lang: Locale;
+}
+
+const { app, lang } = Astro.props;
+const t = getDict(lang);
+const copy = t.apps[app.slug];
+const dot = { disponible: "bg-success", desarrollo: "bg-magenta", propuesta: "bg-muted" }[app.status];
+const logoW = Math.round(Math.min(app.logo.w / app.logo.h, 3.23) * 36);
+---
+
+<!-- El wrapper conserva la animación de entrada (data-reveal); el hover vive en el article para no competir con su transform -->
+<div data-reveal class="h-full">
+<article
+  id={app.slug}
+  class="group/card flex h-full flex-col gap-4 rounded-[24px] bg-raised p-5 shadow-card md:bg-surface md:shadow-none transition-[transform,box-shadow,background-color] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:bg-raised hover:shadow-overlay focus-within:-translate-y-1.5 focus-within:shadow-overlay motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:focus-within:translate-y-0 md:rounded-[28px] md:p-6"
+>
+  <Mockup app={app} lang={lang} />
+
+  <div class="flex items-center justify-between gap-3">
+    <span class="flex items-center justify-center rounded-xl bg-white px-3 py-1.5">
+      <img
+        src={app.logo.src}
+        alt={format(t.ui.logoAlt, { name: app.name })}
+        width={logoW}
+        height={36}
+        class="block h-9 w-auto"
+        style={`max-width:${logoW}px`}
+        loading="lazy"
+        decoding="async"
+      />
+    </span>
+    <span class="t-label inline-flex items-center gap-1.5 rounded-full border border-line bg-page px-3 py-1.5 text-ink">
+      <span class={`size-2 rounded-full ${dot}`} aria-hidden="true"></span>
+      {t.status[app.status]}
+    </span>
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <p class="t-eyebrow-s text-brand">{copy.category}</p>
+    <h3 class="t-h4 text-ink">{app.name}</h3>
+    <p class="t-body-s text-muted">{copy.description}</p>
+  </div>
+
+  <!-- TODO: Dejar pendiente hasta agregar navegacion de las paginas de apps, p. ej. /es/apps/sisdrinfa/
+  {
+    app.status !== "propuesta" && (
+      <a href="#contacto" class="t-button group inline-flex w-fit items-center gap-1.5 text-brand" aria-label={format(t.ui.learnMoreAria, { name: app.name })}>
+        {t.ui.learnMore}
+        <Icon name="arrow-right" size={16} class="transition-transform group-hover:translate-x-0.5" />
+      </a>
+    )
+  } -->
+</article>
+</div>

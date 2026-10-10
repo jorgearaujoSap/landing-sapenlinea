@@ -1,0 +1,23 @@
+---
+import ClientsMarquee from "./ClientsMarquee.astro";
+import FeatureCard from "./FeatureCard.astro";
+import SectionHeader from "./SectionHeader.astro";
+import { getDict, type Locale } from "../i18n";
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const { trust } = getDict(lang);
+---
+
+<section id="especialidad" class="hidden bg-surface py-14 md:block md:py-32" style="--fade: var(--c-surface)">
+  <div class="mx-auto flex max-w-[1120px] flex-col gap-10 px-5 md:px-10 xl:px-0">
+    <SectionHeader eyebrow={trust.eyebrow} title={trust.title} description={trust.description} />
+    <div class="grid gap-6 md:grid-cols-3" data-stagger>
+      {trust.areas.map((a) => <FeatureCard icon={a.icon} title={a.title} description={a.description} />)}
+    </div>
+    <ClientsMarquee lang={lang} class="mt-4" />
+  </div>
+</section>

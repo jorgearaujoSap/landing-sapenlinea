@@ -1,0 +1,113 @@
+---
+import FormField from "./FormField.astro";
+import Icon from "./Icon.astro";
+import { getDict, type Locale } from "../i18n";
+import { policyPath } from "../i18n/policy";
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const { contact } = getDict(lang);
+const { form, ...copy } = contact;
+const f = form.fields;
+
+// Endpoint real de destino (correo / CRM / función serverless). Ver .env.example
+const endpoint = import.meta.env.PUBLIC_CONTACT_ENDPOINT ?? "";
+---
+
+<section id="contacto" class="bg-inverse py-14 md:py-32">
+  <div class="mx-auto grid max-w-[1120px] grid-cols-1 items-start gap-10 px-5 md:px-10 lg:grid-cols-2 lg:gap-16 xl:px-0">
+    <div data-reveal class="flex flex-col gap-4">
+      <p class="t-eyebrow text-on-brand">{copy.eyebrow}</p>
+      <h2 class="t-display-l text-on-brand">{copy.title}</h2>
+      <p class="max-w-[440px] text-base leading-normal text-on-brand/90">{copy.description}</p>
+    </div>
+
+    <form
+      data-reveal
+      style="--reveal-delay: 120ms"
+      id="contactForm"
+      novalidate
+      data-endpoint={endpoint}
+      data-lang={lang}
+      data-state="idle"
+      data-msg-idle={form.submit.idle}
+      data-msg-sending={form.submit.sending}
+      data-msg-success={form.submit.success}
+      data-msg-failed={form.submit.failed}
+      data-msg-short={f.message.short}
+      class="flex flex-col gap-4 rounded-[28px] bg-raised p-6 shadow-overlay md:p-8"
+    >
+      <!-- Estados 5 y 6: feedback del envío -->
+      <div
+        id="formSuccess"
+        role="status"
+        hidden
+        class="t-body-xs flex items-start gap-3 rounded-2xl border-[1.5px] border-success bg-surface p-4 text-ink"
+      >
+        <Icon name="circle-check" size={20} class="mt-0.5 shrink-0 text-success" />
+        <p>{form.success}</p>
+      </div>
+      <div
+        id="formFailure"
+        role="alert"
+        hidden
+        class="t-body-xs flex items-start gap-3 rounded-2xl border-[1.5px] border-danger bg-surface p-4 text-ink"
+      >
+        <Icon name="alert-circle" size={20} class="mt-0.5 shrink-0 text-danger" />
+        <p>{form.failure}</p>
+      </div>
+
+      <!-- Trampa para bots (honeypot): los usuarios no la ven ni la rellenan -->
+      <div class="absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden="true">
+        <label>No rellenar <input type="text" name="sitio_web" tabindex="-1" autocomplete="off" /></label>
+      </div>
+
+      <FormField name="nombre" label={f.name.label} required placeholder={f.name.placeholder} autocomplete="name" maxlength={120} error={f.name.error} invalid={f.name.invalid} />
+      <FormField name="email" type="email" inputmode="email" label={f.email.label} required placeholder={f.email.placeholder} autocomplete="email" maxlength={254} error={f.email.error} invalid={f.email.invalid} />
+      <FormField name="telefono" type="tel" inputmode="tel" label={f.phone.label} optionalText={form.optional} placeholder={f.phone.placeholder} autocomplete="tel" maxlength={20} invalid={f.phone.invalid} />
+      <FormField name="interes" as="select" label={f.interest.label} required placeholder={f.interest.placeholder} options={f.interest.options} error={f.interest.error} />
+      <FormField name="mensaje" as="textarea" label={f.message.label} required placeholder={f.message.placeholder} maxlength={2000} error={f.message.error} invalid={f.message.short} />
+
+      <div data-field data-msg-required={f.consent.error} data-msg-invalid={f.consent.error}>
+        <label class="t-caption flex cursor-pointer items-start gap-2.5 text-muted">
+          <input
+            id="f-consentimiento"
+            name="consentimiento"
+            type="checkbox"
+            required
+            class="checkbox-check relative mt-0.5 size-[18px] shrink-0 cursor-pointer appearance-none rounded-[5px] border border-line bg-page transition-colors checked:border-brand checked:bg-brand hover:border-muted aria-[invalid=true]:border-2 aria-[invalid=true]:border-danger"
+            aria-describedby="f-consentimiento-error"
+          />
+          <span>
+            {f.consent.label}<a
+              href={policyPath(lang)}
+              target="_blank"
+              rel="noopener"
+              class="font-semibold text-brand underline decoration-brand/40 underline-offset-2 transition-colors hover:decoration-brand">{f.consent.link}</a
+            > *
+          </span>
+        </label>
+        <p id="f-consentimiento-error" class="t-caption mt-1.5 hidden items-start gap-1.5 text-danger" data-error role="alert">
+          <Icon name="alert-circle" size={16} class="mt-px shrink-0" /> <span data-error-text></span>
+        </p>
+      </div>
+
+      <button
+        id="formSubmit"
+        type="submit"
+        class="t-button inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand px-7 py-4 text-on-brand shadow-brand transition-colors hover:bg-brand-hover disabled:opacity-85 dark:text-page"
+      >
+        <span id="formSubmitIcon" class="hidden"></span>
+        <span id="formSubmitLabel">{form.submit.idle}</span>
+      </button>
+    </form>
+  </div>
+</section>
+
+<script>
+  import { initContactForm } from "../scripts/contact-form";
+  initContactForm();
+</script>

@@ -1,0 +1,41 @@
+---
+// Raíz: elige el idioma según la preferencia guardada o la del navegador y redirige a /es/, /en/ o /pt/.
+// Sin JavaScript, <meta refresh> y los enlaces llevan al idioma por defecto (es).
+import { defaultLocale, localeMeta, locales, localizedPath } from "../i18n";
+---
+
+<!doctype html>
+<html lang={localeMeta[defaultLocale].htmlLang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistemas y Aplicaciones en Línea S.A.S</title>
+    <meta name="robots" content="noindex" />
+    <meta http-equiv="refresh" content={`0; url=${localizedPath(defaultLocale)}`} />
+    <link rel="canonical" href={localizedPath(defaultLocale)} />
+    <script is:inline define:vars={{ locales, defaultLocale }}>
+      (function () {
+        var target = defaultLocale;
+        try {
+          var saved = localStorage.getItem("lang");
+          if (saved && locales.indexOf(saved) > -1) target = saved;
+          else {
+            var prefs = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language];
+            for (var i = 0; i < prefs.length; i++) {
+              var code = String(prefs[i]).toLowerCase().slice(0, 2);
+              if (locales.indexOf(code) > -1) { target = code; break; }
+            }
+          }
+        } catch (e) {}
+        window.location.replace("/" + target + "/" + window.location.hash);
+      })();
+    </script>
+  </head>
+  <body>
+    <noscript>
+      <ul>
+        {locales.map((l) => <li><a href={localizedPath(l)} lang={localeMeta[l].htmlLang}>{localeMeta[l].name}</a></li>)}
+      </ul>
+    </noscript>
+  </body>
+</html>

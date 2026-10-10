@@ -1,0 +1,39 @@
+---
+import Icon from "./Icon.astro";
+import SectionHeader from "./SectionHeader.astro";
+import { getDict, type Locale } from "../i18n";
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const { faq } = getDict(lang);
+---
+
+<section id="faq" class="py-14 md:py-32">
+  <div class="mx-auto flex max-w-[880px] flex-col gap-8 px-5 md:px-10 xl:px-0">
+    <SectionHeader eyebrow={faq.eyebrow} title={faq.title} />
+    <!-- <details name="faq"> hace el acordeón exclusivo y accesible por teclado sin JavaScript -->
+    <div class="border-t border-line" data-stagger>
+      {
+        faq.items.map((item) => (
+          <details data-reveal data-faq-item name="faq" class="group border-b border-line py-5">
+            <summary class="flex list-none items-center justify-between gap-6 [&::-webkit-details-marker]:hidden">
+              <h3 class="text-[1.0625rem] font-semibold leading-snug text-ink">{item.question}</h3>
+              <span class="shrink-0 text-brand">
+                <Icon name="plus" size={20} class="faq-plus group-open:hidden" />
+                <Icon name="minus" size={20} class="faq-minus hidden group-open:block" />
+              </span>
+            </summary>
+            <p data-faq-content class="t-body-s mt-2.5 text-muted">{item.answer}</p>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<script>
+  import "../scripts/faq";
+</script>

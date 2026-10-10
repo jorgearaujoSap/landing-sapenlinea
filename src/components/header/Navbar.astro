@@ -1,0 +1,77 @@
+---
+import Button from "../Button.astro";
+import Icon from "../Icon.astro";
+import LanguageSwitcher from "./LanguageSwitcher.astro";
+import Logo from "../Logo.astro";
+import { getDict, type Locale } from "../../i18n";
+
+interface Props {
+  lang: Locale;
+  /** prefijo de las anclas cuando no se está en la portada, p. ej. "/es/" */
+  base?: string;
+  /** ruta de esta misma página en cada idioma (por defecto, la portada) */
+  paths?: Partial<Record<Locale, string>>;
+}
+
+const { lang, base = "", paths } = Astro.props;
+const t = getDict(lang);
+---
+
+<header
+  id="navbar"
+  data-scrolled="false"
+  class="fixed top-0 z-50 flex w-full items-center justify-between border-b border-transparent px-5 py-3 backdrop-blur-sm transition-[background-color,border-color,backdrop-filter] duration-300 data-[scrolled=true]:border-line/70 data-[scrolled=true]:bg-page/75 data-[scrolled=true]:backdrop-blur-xl md:px-10 md:py-4 xl:px-24"
+>
+  <a href={`${base}#inicio`} aria-label={t.ui.homeAria}>
+    <Logo />
+  </a>
+
+  <nav class="hidden items-center gap-7 md:flex lg:gap-9" aria-label={t.ui.navAria}>
+    {t.nav.map((l) => <a href={`${base}#${l.id}`} class="t-body-xs font-medium text-muted transition-colors hover:text-ink">{l.label}</a>)}
+  </nav>
+
+  <div class="flex items-center gap-2.5 md:gap-3">
+    <span class="hidden md:block"><LanguageSwitcher lang={lang} paths={paths} /></span>
+    <button
+      id="themeToggle"
+      type="button"
+      class="t-caption inline-flex size-9 items-center justify-center rounded-full border border-line font-medium text-ink transition-colors hover:bg-surface"
+      aria-label={t.ui.themeAria}
+    >
+      <Icon name="sun" size={16} class="dark:hidden" />
+      <Icon name="moon" size={16} class="hidden dark:block" />
+    </button>
+    <span class="hidden md:inline-flex"><Button href={`${base}#contacto`} size="sm">{t.ui.demo}</Button></span>
+    <button
+      id="openMenu"
+      type="button"
+      class="t-caption inline-flex h-9 items-center gap-1.5 rounded-full border border-line px-3 font-medium text-ink md:hidden"
+      aria-label={t.ui.openMenu}
+      aria-controls="mobileMenu"
+    >
+      <Icon name="menu-2" size={18} /> {t.ui.menu}
+    </button>
+  </div>
+</header>
+
+<!-- Menú móvil: panel a pantalla completa que entra desde la derecha, con el contenido centrado.
+     Va fuera del <header> porque su backdrop-filter convertiría al header en el bloque contenedor del position:fixed. -->
+<div
+  id="mobileMenu"
+  data-open="false"
+  class="fixed inset-0 z-[60] flex translate-x-full flex-col items-center justify-center gap-7 bg-page/90 text-center text-xl font-semibold opacity-0 backdrop-blur-xl transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] data-[open=true]:translate-x-0 data-[open=true]:opacity-100 md:hidden"
+  aria-hidden="true"
+  inert
+>
+  {t.nav.map((l) => <a href={`${base}#${l.id}`} data-close-menu class="text-ink">{l.label}</a>)}
+  <Button href={`${base}#contacto`} size="sm" data-close-menu>{t.ui.demo}</Button>
+  <LanguageSwitcher lang={lang} variant="list" paths={paths} />
+  <button
+    id="closeMenu"
+    type="button"
+    class="mt-2 flex size-11 items-center justify-center rounded-full bg-brand text-on-brand transition hover:bg-brand-hover dark:text-page"
+    aria-label={t.ui.closeMenu}
+  >
+    <Icon name="x" />
+  </button>
+</div>

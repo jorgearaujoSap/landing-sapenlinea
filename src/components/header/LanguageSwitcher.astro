@@ -1,0 +1,63 @@
+---
+import Icon from "../Icon.astro";
+import { localeMeta, locales, localizedPath, getDict, type Locale } from "../../i18n";
+
+interface Props {
+  lang: Locale;
+  variant?: "dropdown" | "list";
+  paths?: Partial<Record<Locale, string>>;
+}
+
+const { lang, variant = "dropdown", paths = {} } = Astro.props;
+const t = getDict(lang);
+---
+
+{
+  variant === "dropdown" ? (
+    <details class="relative" data-lang-menu>
+      <summary
+        class="t-caption flex h-9 list-none items-center gap-1.5 rounded-full border border-line px-3 font-medium text-ink transition-colors hover:bg-surface [&::-webkit-details-marker]:hidden"
+        aria-label={`${t.ui.language}: ${localeMeta[lang].name}`}
+      >
+        {lang.toUpperCase()}
+        <Icon name="chevron-down" size={14} />
+      </summary>
+      <ul class="absolute right-0 top-[calc(100%+8px)] z-10 min-w-36 rounded-2xl border border-line bg-raised p-1.5 shadow-card">
+        {locales.map((l) => (
+          <li>
+            <a
+              href={paths[l] ?? localizedPath(l)}
+              hreflang={localeMeta[l].htmlLang}
+              lang={localeMeta[l].htmlLang}
+              data-lang-link={l}
+              aria-current={l === lang ? "true" : undefined}
+              class:list={[
+                "t-body-xs block rounded-xl px-3 py-2 font-medium transition-colors hover:bg-surface",
+                l === lang ? "text-brand" : "text-ink",
+              ]}
+            >
+              {localeMeta[l].name}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </details>
+  ) : (
+    <ul class="flex items-center gap-4 text-base">
+      {locales.map((l) => (
+        <li>
+          <a
+            href={paths[l] ?? localizedPath(l)}
+            hreflang={localeMeta[l].htmlLang}
+            lang={localeMeta[l].htmlLang}
+            data-lang-link={l}
+            aria-current={l === lang ? "true" : undefined}
+            class:list={["font-medium", l === lang ? "text-brand" : "text-muted"]}
+          >
+            {localeMeta[l].name}
+          </a>
+        </li>
+      ))}
+    </ul>
+  )
+}

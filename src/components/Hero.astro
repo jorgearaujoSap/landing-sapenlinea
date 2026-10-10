@@ -1,0 +1,37 @@
+---
+import Button from "./Button.astro";
+import ClientsMarquee from "./ClientsMarquee.astro";
+import { getDict, type Locale } from "../i18n";
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const t = getDict(lang);
+---
+
+<section id="inicio" class="overflow-x-clip pb-14 pt-28 md:pb-32 md:pt-[113px]">
+  <div class="mx-auto grid max-w-[1120px] grid-cols-1 items-center gap-8 px-5 md:px-10 lg:grid-cols-2 lg:gap-16 xl:px-0">
+    <div class="flex flex-col gap-6 lg:pt-[54px]" data-stagger>
+      <h1 data-reveal class="t-display-xl text-ink">{t.hero.title}</h1>
+      <p data-reveal class="t-body-l text-muted">{t.hero.description}</p>
+      <div data-reveal class="flex flex-col gap-3 sm:flex-row">
+        <Button href="#soluciones">{t.hero.primary}</Button>
+        <Button href="#contacto" variant="secondary">{t.hero.secondary}</Button>
+      </div>
+    </div>
+
+    <div data-reveal="scale" style="--reveal-delay: 200ms" class="relative hidden items-end justify-center md:flex">
+      <span
+        aria-hidden="true"
+        class="absolute -left-4 -top-[120px] size-[560px] rounded-full bg-brand opacity-16 blur-[140px]"></span>
+      <div class="relative aspect-[528/400] w-full max-w-[528px] overflow-hidden rounded-[36px] shadow-overlay">
+        <img src="/assets/hero/hero.webp" alt={t.ui.heroAlt} width="1200" height="896" class="size-full object-cover" fetchpriority="high" />
+      </div>
+    </div>
+
+    <!-- Móvil: en lugar de la imagen se muestran los logos de las entidades -->
+    <ClientsMarquee lang={lang} class="mt-14 md:hidden" />
+  </div>
+</section>

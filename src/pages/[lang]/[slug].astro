@@ -1,0 +1,83 @@
+---
+// Páginas legales (un slug por idioma y documento):
+//   Política de datos: /es/politica-de-datos/  ·  /en/data-policy/  ·  /pt/politica-de-dados/
+//   Términos y condiciones: /es/terminos-y-condiciones/  ·  /en/terms-and-conditions/  ·  /pt/termos-e-condicoes/
+import Layout from "../../layouts/Layout.astro";
+import Navbar from "../../components/header/Navbar.astro";
+import Footer from "../../components/footer/Footer.astro";
+import Icon from "../../components/Icon.astro";
+import { locales, localizedPath, type Locale } from "../../i18n";
+import { policies, policyPath, policySlug } from "../../i18n/policy";
+import { terms, termsPath, termsSlug } from "../../i18n/terms";
+
+type Kind = "policy" | "terms";
+
+export function getStaticPaths() {
+  return locales.flatMap((lang) => [
+    { params: { lang, slug: policySlug[lang] }, props: { kind: "policy" as Kind } },
+    { params: { lang, slug: termsSlug[lang] }, props: { kind: "terms" as Kind } },
+  ]);
+}
+
+const lang = Astro.params.lang as Locale;
+const { kind } = Astro.props as { kind: Kind };
+const doc = (kind === "policy" ? policies : terms)[lang];
+const pathOf = kind === "policy" ? policyPath : termsPath;
+const base = localizedPath(lang); // las anclas del menú vuelven a la portada del mismo idioma
+const paths = Object.fromEntries(locales.map((l) => [l, pathOf(l)])) as Record<Locale, string>;
+---
+
+<Layout lang={lang} title={doc.metaTitle} description={doc.intro} paths={paths}>
+  <Navbar lang={lang} base={base} paths={paths} />
+  <main class="px-5 pb-24 pt-32 md:px-10 md:pt-40">
+    <article class="mx-auto flex max-w-[760px] flex-col gap-8">
+      <a href={base} class="t-button inline-flex w-fit items-center gap-1.5 text-brand">
+        <Icon name="arrow-right" size={16} class="rotate-180" />
+        {doc.back}
+      </a>
+
+      <header class="flex flex-col gap-3">
+        <p class="t-eyebrow text-brand">{doc.eyebrow}</p>
+        <h1 class="t-h2 text-ink">{doc.title}</h1>
+        <p class="t-caption text-muted">{doc.updated}</p>
+      </header>
+
+      {doc.draft && <p class="t-body-xs rounded-2xl border border-line bg-surface p-4 text-muted" role="note">{doc.draft}</p>}
+
+      <p class="t-lead text-muted">{doc.intro}</p>
+
+      <nav aria-label={doc.toc} class="rounded-2xl bg-surface p-5">
+        <p class="t-label mb-3 text-ink">{doc.toc}</p>
+        <ol class="grid list-decimal gap-x-8 gap-y-1.5 pl-5 sm:grid-cols-2">
+          {
+            doc.sections.map((s, i) => (
+              <li class="t-body-xs text-muted marker:font-semibold marker:text-brand">
+                <a href={`#sec-${i + 1}`} class="transition-colors hover:text-brand">{s.title}</a>
+              </li>
+            ))
+          }
+        </ol>
+      </nav>
+
+      {
+        doc.sections.map((s, i) => (
+          <section id={`sec-${i + 1}`} class="flex flex-col gap-3">
+            <h2 class="t-h4 text-ink">
+              <span class="mr-2 text-brand">{i + 1}.</span>{s.title}
+            </h2>
+            {s.body?.map((p) => <p class="t-body-s text-muted">{p}</p>)}
+            {
+              s.list && (
+                <ul class="t-body-s flex list-disc flex-col gap-2 pl-5 text-muted marker:text-brand">
+                  {s.list.map((item) => <li>{item}</li>)}
+                </ul>
+              )
+            }
+            {s.note && <p class="t-body-xs rounded-xl bg-brand-soft p-3 text-ink">{s.note}</p>}
+          </section>
+        ))
+      }
+    </article>
+  </main>
+  <Footer lang={lang} base={base} />
+</Layout>

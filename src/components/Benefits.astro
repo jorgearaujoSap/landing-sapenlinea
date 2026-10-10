@@ -1,0 +1,31 @@
+---
+import FeatureCard from "./FeatureCard.astro";
+import SectionHeader from "./SectionHeader.astro";
+import { getDict, type Locale } from "../i18n";
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const { benefits } = getDict(lang);
+---
+
+<section id="beneficios" class="bg-surface py-14 md:py-32">
+  <div class="mx-auto flex max-w-[1120px] flex-col gap-10 px-5 md:px-10 xl:px-0">
+    <SectionHeader eyebrow={benefits.eyebrow} title={benefits.title} description={benefits.description} />
+    <!-- Rejilla de 6 columnas: la primera fila reparte 3 tarjetas (2+2+2) y la segunda 2 tarjetas que ocupan todo el ancho (3+3) -->
+    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-6" data-stagger>
+      {
+        benefits.items.map((b, i) => (
+          <FeatureCard
+            icon={b.icon}
+            title={b.title}
+            description={b.description}
+            class={i < 3 ? "lg:col-span-2" : i === benefits.items.length - 1 && i % 2 === 0 ? "sm:col-span-2 lg:col-span-3" : "lg:col-span-3"}
+          />
+        ))
+      }
+    </div>
+  </div>
+</section>

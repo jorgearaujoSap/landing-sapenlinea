@@ -1,0 +1,57 @@
+---
+// Lockup de marca: Sistemas y Aplicaciones En Línea.
+// Fuente de verdad: el SVG original (src/assets/brand/logo-lockup-sap.svg). Aquí se leen sus trazados para poder
+// cambiar el color según el tema, sin redibujar nada:
+//   · modo claro  -> logo original (baldosa #231E73, 12 franjas de color y texto #231E73)
+//   · modo oscuro -> monocromático positivo: baldosa blanca con las franjas recortadas y texto blanco
+// Para actualizar el logotipo basta con reemplazar el SVG original.
+import raw from "../assets/brand/logo-lockup-sap.svg?raw";
+
+interface Props {
+  class?: string;
+  /** alto en px (el ancho se calcula con la proporción 132×40 del original) */
+  size?: number;
+}
+
+const { class: className = "", size = 40 } = Astro.props;
+
+const paths = [...raw.matchAll(/<path d="([^"]+)"([^>]*)\/>/g)].map((m) => ({ d: m[1], attrs: m[2] }));
+const tile = paths[0].d; // primera ruta: baldosa redondeada
+const wordmark = paths[paths.length - 1].d; // última ruta: texto
+const stripes = paths
+  .slice(1, -1)
+  .map((p) => ({ d: p.d, color: p.attrs.match(/stroke="(#[0-9A-Fa-f]{6})"/)?.[1] ?? "#fff" }));
+
+const width = Math.round((132 / 40) * size * 100) / 100;
+---
+
+<svg
+  width={width}
+  height={size}
+  viewBox="0 0 132 40"
+  fill="none"
+  role="img"
+  aria-label="Sistemas y Aplicaciones En Línea"
+  class:list={["shrink-0", className]}
+>
+  <defs>
+    <!-- Recorte de las franjas para la versión monocromática -->
+    <mask id="logo-knockout" maskUnits="userSpaceOnUse" x="0" y="0" width="40" height="40">
+      <rect width="40" height="40" fill="#fff"></rect>
+      {stripes.map((s) => <path d={s.d} stroke="#000" stroke-width="2" stroke-linecap="round" />)}
+    </mask>
+  </defs>
+
+  <!-- Figura · color (modo claro) -->
+  <g class="dark:hidden">
+    <path d={tile} fill="#231E73"></path>
+    {stripes.map((s) => <path d={s.d} stroke={s.color} stroke-width="2" stroke-linecap="round" />)}
+  </g>
+  <!-- Figura · monocromática positiva (modo oscuro) -->
+  <g class="hidden dark:inline">
+    <path d={tile} fill="#fff" mask="url(#logo-knockout)"></path>
+  </g>
+
+  <!-- Texto -->
+  <path d={wordmark} class="fill-[#231E73] dark:fill-white"></path>
+</svg>

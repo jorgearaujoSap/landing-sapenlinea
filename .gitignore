@@ -1,0 +1,43 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+.astro/
+
+# env
+.env
+.env.*
+!.env.example
+
+# logs
+npm-debug.log*
+
+# os
+.DS_Store
+Thumbs.db
+
+# logs (otros gestores)
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# herramientas locales / asistentes
+.claude/
+.codegraph/
+.engram/
+
+# editores
+.vscode/
+.idea/
+*.swp
+
+# despliegue
+.vercel/
+.netlify/
+.wrangler/
+
+# archivos de sistema y temporales
+desktop.ini
+*.log
+*.tmp

@@ -1,0 +1,33 @@
+---
+import { clients } from "../data/clients";
+import { getDict, type Locale } from "../i18n";
+
+interface Props {
+  lang: Locale;
+  class?: string;
+}
+
+const { lang, class: className } = Astro.props;
+const t = getDict(lang);
+// Se duplica la secuencia: el recorrido -50 % del keyframe `marqueeScroll` se repite sin saltos.
+const track = Array.from({ length: 6 }, () => clients).flat();
+const doubled = [...track, ...track];
+---
+
+<div data-reveal class:list={["flex w-full min-w-0 flex-col items-center gap-5", className]}>
+  <p class="t-body-s text-muted md:text-base">{t.trust.clientsTitle}</p>
+  <div class="marquee relative w-full select-none overflow-hidden" aria-label={t.ui.clientsAria}>
+    <div class="marquee-inner flex w-max items-center gap-14 md:gap-[88px]">
+      {
+        doubled.map((c) => (
+          <span class="flex shrink-0 items-center">
+            <img src={c.light} alt={c.name} width={c.w} height={c.h} class="block opacity-85 dark:hidden" style={`width:${c.w}px;height:${c.h}px`} loading="lazy" draggable="false" />
+            <img src={c.dark} alt={c.name} width={c.w} height={c.h} class="hidden opacity-85 dark:block" style={`width:${c.w}px;height:${c.h}px`} loading="lazy" draggable="false" />
+          </span>
+        ))
+      }
+    </div>
+    <div class="pointer-events-none absolute left-0 top-0 z-10 h-full w-16 bg-gradient-to-r from-[var(--fade,var(--c-page))] to-transparent md:w-40"></div>
+    <div class="pointer-events-none absolute right-0 top-0 z-10 h-full w-16 bg-gradient-to-l from-[var(--fade,var(--c-page))] to-transparent md:w-40"></div>
+  </div>
+</div>

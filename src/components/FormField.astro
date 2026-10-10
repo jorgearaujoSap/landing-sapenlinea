@@ -1,0 +1,97 @@
+---
+import Icon from "./Icon.astro";
+
+interface Props {
+  name: string;
+  label: string;
+  as?: "input" | "textarea" | "select";
+  type?: string;
+  required?: boolean;
+  /** texto que acompaña a los campos no obligatorios, p. ej. "opcional" */
+  optionalText?: string;
+  placeholder?: string;
+  autocomplete?: string;
+  inputmode?: "text" | "email" | "tel" | "numeric";
+  maxlength?: number;
+  options?: { value: string; label: string }[];
+  /** mensaje cuando el campo obligatorio está vacío */
+  error?: string;
+  /** mensaje cuando el valor no cumple el formato del tipo de dato */
+  invalid?: string;
+  class?: string;
+}
+
+const {
+  name,
+  label,
+  as = "input",
+  type = "text",
+  required = false,
+  optionalText = "optional",
+  placeholder,
+  autocomplete,
+  inputmode,
+  maxlength,
+  options = [],
+  error,
+  invalid,
+  class: className,
+} = Astro.props;
+const id = `f-${name}`;
+const control =
+  "w-full rounded-xl border border-line bg-surface px-3.5 text-[0.9375rem] text-ink placeholder:text-muted outline-none transition-[border-color,box-shadow] duration-200 hover:border-muted/60 focus:border-focus focus:shadow-[0_0_0_3px_color-mix(in_srgb,var(--c-focus)_25%,transparent)] aria-[invalid=true]:border-danger aria-[invalid=true]:shadow-[0_0_0_3px_color-mix(in_srgb,var(--c-danger)_18%,transparent)] disabled:opacity-50";
+---
+
+<div
+  class:list={["flex flex-col gap-1.5", className]}
+  data-field
+  data-msg-required={error ?? ""}
+  data-msg-invalid={invalid ?? error ?? ""}
+>
+  <label for={id} class="t-label text-ink">{label}{required ? " *" : ` (${optionalText})`}</label>
+  {
+    as === "textarea" ? (
+      <textarea
+        id={id}
+        name={name}
+        rows="4"
+        required={required}
+        maxlength={maxlength}
+        placeholder={placeholder}
+        aria-describedby={`${id}-error`}
+        class:list={[control, "h-24 resize-none py-3"]}
+      />
+    ) : as === "select" ? (
+      <div class="relative">
+        <select
+          id={id}
+          name={name}
+          required={required}
+          aria-describedby={`${id}-error`}
+          class:list={[control, "h-11 cursor-pointer appearance-none pr-11"]}
+        >
+          <option value="" disabled selected>{placeholder}</option>
+          {options.map((o) => <option value={o.value}>{o.label}</option>)}
+        </select>
+        <Icon name="chevron-down" size={18} class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-muted" />
+      </div>
+    ) : (
+      <input
+        id={id}
+        name={name}
+        type={type}
+        required={required}
+        maxlength={maxlength}
+        inputmode={inputmode}
+        placeholder={placeholder}
+        autocomplete={autocomplete}
+        aria-describedby={`${id}-error`}
+        class:list={[control, "h-11"]}
+      />
+    )
+  }
+  <p id={`${id}-error`} class="t-caption hidden items-start gap-1.5 text-danger" data-error role="alert">
+    <Icon name="alert-circle" size={16} class="mt-px shrink-0" />
+    <span data-error-text></span>
+  </p>
+</div>

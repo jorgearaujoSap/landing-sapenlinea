@@ -1,0 +1,69 @@
+---
+import Logo from "../Logo.astro";
+import { getDict, type Locale } from "../../i18n";
+import { policyPath } from "../../i18n/policy";
+import { termsPath } from "../../i18n/terms";
+
+interface Props {
+  lang: Locale;
+  /** prefijo de las anclas cuando no se está en la portada, p. ej. "/es/" */
+  base?: string;
+}
+
+const { lang, base = "" } = Astro.props;
+const t = getDict(lang);
+const { footer } = t;
+// Columnas: Navegación · Legal · Contacto
+const columns = footer.columns.map((col, i) => {
+  // Navegación: reutiliza el menú principal del idioma.
+  if (i === 0) return { ...col, links: t.nav.map((n) => ({ href: `${base}#${n.id}`, label: n.label })) };
+  // Legal: política de privacidad y tratamiento de datos -> política; términos y condiciones -> términos.
+  if (i === 1) return { ...col, links: col.links.map((l, j) => ({ ...l, href: j < 2 ? policyPath(lang) : termsPath(lang) })) };
+  return col;
+});
+---
+
+<footer class="relative overflow-hidden bg-page px-5 pb-7 pt-14 md:px-10 md:pt-44 xl:px-24">
+  <!-- Palabra fantasma en contorno (equivalente al "landing" de la plantilla).
+       Escritorio: horizontal sobre el contenido. Móvil: vertical, pegada al borde derecho y leída de abajo hacia arriba. -->
+  <span
+    id="ghost-wordmark"
+    aria-hidden="true"
+    class="ghost-wordmark pointer-events-none absolute font-extrabold leading-none tracking-[-0.04em] max-md:right-[-0.08em] max-md:top-1/2 max-md:-translate-y-1/2 max-md:rotate-180 max-md:whitespace-nowrap max-md:text-[min(32vw,8rem)] max-md:[writing-mode:vertical-rl] md:left-1/2 md:top-24 md:w-full md:max-w-[1280px] md:-translate-x-1/2 md:px-10 md:text-left md:text-[clamp(4rem,15.2vw,13.75rem)] xl:px-0"
+  >
+    SAP en Línea
+  </span>
+
+  <div class="relative mx-auto max-w-[1280px]">
+    <div class="flex flex-col gap-12 md:flex-row md:justify-between md:gap-16">
+      <div class="flex max-w-[380px] flex-col gap-6">
+        <a href={`${base}#inicio`} aria-label={t.ui.homeAria}><Logo /></a>
+        <p class="t-body-s text-ink md:text-base md:leading-relaxed">{footer.description}</p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-x-10 gap-y-10 sm:grid-cols-3 md:gap-x-16 lg:gap-x-24">
+        {
+          columns.map((col) => (
+            <div>
+              <h2 class="mb-3 text-sm font-bold text-ink">{col.title}</h2>
+              <ul class="flex flex-col gap-3">
+                {col.links.map((l) => (
+                  <li>
+                    {l.href ? (
+                      <a href={l.href} class="t-body-s text-muted transition-colors hover:text-brand">{l.label}</a>
+                    ) : (
+                      <span class="t-body-s text-muted">{l.label}</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+
+    <hr class="mb-8 mt-14 border-line" />
+    <p class="t-caption text-center text-ink">{footer.copyright}</p>
+  </div>
+</footer>

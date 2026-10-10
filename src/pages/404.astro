@@ -1,0 +1,13 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Button from "../components/Button.astro";
+---
+
+<Layout lang="es" title="Página no encontrada · SAP en Línea" description="La página que buscas no existe o fue movida." noindex>
+  <main class="flex min-h-screen flex-col items-center justify-center gap-6 px-5 text-center">
+    <p class="t-eyebrow text-brand">Error 404</p>
+    <h1 class="t-display-l text-ink">Página no encontrada</h1>
+    <p class="t-body-l max-w-md text-muted">La página que buscas no existe o fue movida.</p>
+    <Button href="/es/">Volver al inicio</Button>
+  </main>
+</Layout>

@@ -1,0 +1,23 @@
+---
+import Button from "./Button.astro";
+import FeatureCard from "./FeatureCard.astro";
+import SectionHeader from "./SectionHeader.astro";
+import { getDict, type Locale } from "../i18n";
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const { services } = getDict(lang);
+---
+
+<section id="capacidades" class="py-14 md:py-32">
+  <div class="mx-auto flex max-w-[1120px] flex-col items-center gap-10 px-5 md:px-10 xl:px-0">
+    <SectionHeader eyebrow={services.eyebrow} title={services.title} description={services.description} />
+    <div class="grid w-full gap-6 md:grid-cols-3" data-stagger>
+      {services.items.map((s) => <FeatureCard icon={s.icon} title={s.title} description={s.description} tone="surface" tile="brand" />)}
+    </div>
+    <div data-reveal><Button href="#contacto">{services.cta}</Button></div>
+  </div>
+</section>

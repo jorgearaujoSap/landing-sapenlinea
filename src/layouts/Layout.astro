@@ -1,0 +1,109 @@
+---
+import "../styles/global.css";
+import { getDict, localeMeta, locales, localizedPath, defaultLocale, type Locale } from "../i18n";
+
+interface Props {
+  lang: Locale;
+  /** sobrescribe el título / descripción (páginas internas) */
+  title?: string;
+  description?: string;
+  /** ruta de esta página en cada idioma, para canonical y hreflang (por defecto, la portada) */
+  paths?: Partial<Record<Locale, string>>;
+  noindex?: boolean;
+}
+
+const { lang, title, description, paths = {}, noindex = false } = Astro.props;
+const t = getDict(lang);
+const meta = localeMeta[lang];
+const abs = (path: string) => (Astro.site ? new URL(path, Astro.site).href : path);
+const pageTitle = title ?? t.meta.title;
+const pageDescription = description ?? t.meta.description;
+const pathOf = (l: Locale) => paths[l] ?? localizedPath(l);
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": abs("/#organization"),
+      name: "Sistemas y Aplicaciones en Línea S.A.S.",
+      alternateName: "SAP en Línea",
+      url: abs("/"),
+      logo: abs("/icon-512.png"),
+      email: "contacto@sapenlinea.com.co",
+      areaServed: "CO",
+    },
+    {
+      "@type": "WebSite",
+      "@id": abs("/#website"),
+      url: abs("/"),
+      name: "SAP en Línea",
+      inLanguage: meta.htmlLang,
+      publisher: { "@id": abs("/#organization") },
+    },
+  ],
+};
+---
+
+<!doctype html>
+<html lang={meta.htmlLang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDescription} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Sistemas y Aplicaciones en Línea S.A.S." />
+    <meta property="og:url" content={abs(pathOf(lang))} />
+    <meta property="og:image" content={abs("/og-image.png")} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={pageDescription} />
+    <meta name="twitter:image" content={abs("/og-image.png")} />
+    {!noindex && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    <meta property="og:locale" content={meta.og} />
+    {locales.filter((l) => l !== lang).map((l) => <meta property="og:locale:alternate" content={localeMeta[l].og} />)}
+    <link rel="canonical" href={abs(pathOf(lang))} />
+    {locales.map((l) => <link rel="alternate" hreflang={localeMeta[l].htmlLang} href={abs(pathOf(l))} />)}
+    <link rel="alternate" hreflang="x-default" href={abs(pathOf(defaultLocale))} />
+    <!-- Isotipo del logo: SVG para navegadores modernos, .ico de respaldo, icono de iOS y manifiesto -->
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#231E73" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Tema: respeta la preferencia guardada o la del sistema, antes de pintar (evita parpadeo) -->
+    <script is:inline>
+      (function () {
+        try {
+          document.documentElement.classList.add("js");
+          var saved = localStorage.getItem("theme");
+          var dark = saved ? saved === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+          document.documentElement.classList.toggle("dark", dark);
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <a
+      href="#contacto"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-brand focus:px-4 focus:py-2 focus:text-on-brand"
+    >
+      {t.ui.skipLink}
+    </a>
+    <slot />
+
+    <script>
+      import "../scripts/navbar";
+      import "../scripts/theme";
+      import "../scripts/language";
+      import "../scripts/reveal";
+    </script>
+  </body>
+</html>

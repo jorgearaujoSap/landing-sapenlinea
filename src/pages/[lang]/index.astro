@@ -1,0 +1,36 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Navbar from "../../components/header/Navbar.astro";
+import Hero from "../../components/Hero.astro";
+import Trust from "../../components/Trust.astro";
+import Portfolio from "../../components/Portfolio.astro";
+import Benefits from "../../components/Benefits.astro";
+import Services from "../../components/Services.astro";
+import About from "../../components/About.astro";
+import Faq from "../../components/Faq.astro";
+import ContactForm from "../../components/ContactForm.astro";
+import Footer from "../../components/footer/Footer.astro";
+import { locales, type Locale } from "../../i18n";
+
+// Rutas por idioma: /es/, /en/ y /pt/. Para añadir un idioma: crear su diccionario en src/i18n y registrarlo en `locales`.
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Locale;
+---
+
+<Layout lang={lang}>
+  <Navbar lang={lang} />
+  <main>
+    <Hero lang={lang} />
+    <Trust lang={lang} />
+    <Portfolio lang={lang} />
+    <Benefits lang={lang} />
+    <Services lang={lang} />
+    <About lang={lang} />
+    <Faq lang={lang} />
+    <ContactForm lang={lang} />
+  </main>
+  <Footer lang={lang} />
+</Layout>
